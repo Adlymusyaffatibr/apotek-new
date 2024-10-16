@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('akuns', function (Blueprint $table) {
             $table->id();
             $table->string('nama');
-            $table->string('email');
+            $table->string('email')->unique();
             $table->string('password');
             $table->string('role');
             $table->timestamps();

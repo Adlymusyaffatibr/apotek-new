@@ -11,7 +11,7 @@ class LandingPageController extends Controller
     public function index()
     {
         //proses pemanggilan file blade
-        return view('landing-page');
+        return view('home');
     }
 
     // menampilkan halaman form tambah data

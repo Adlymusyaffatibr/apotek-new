@@ -17,10 +17,12 @@
                 <span class="navbar-toggler-icon"></span>
               </button>
               <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                @if (Auth::check())
                 <ul class="navbar-nav">
                   <li class="nav-item">
                     <a class="nav-link active" aria-current="page" href="/">Dashboard</a>
                   </li>
+                  @if (Auth::user()->role == 'admin')
                   <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                       Obat
@@ -31,12 +33,19 @@
                       <li><a class="dropdown-item" href="{{route('medicine.stock')}}">Stok</a></li>
                     </ul>
                   </li>
+                  @endif
                   <li class="nav-item">
                     <a class="nav-link active" aria-current="page" href="#">Pembelian</a>
                   </li>
+                  @if (Auth::user()->role == 'admin') 
                   <li class="nav-item">
                     <a class="nav-link active" aria-current="page" href="/kelola">Kelola Akun</a>
                   </li>
+                  <li class="nav-item" >
+                    @endif
+                    <a class="nav-link" href="{{ route('logout') }}">Logout</a>
+                  </li>
+                  @endif
                 </ul>
               </div>
             </div>

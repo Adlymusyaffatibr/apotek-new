@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Akun;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -13,9 +14,32 @@ class AkunController extends Controller
     /**
      * Display a listing of the resource.
      */
+    public function login(){
+        return view('login');
+    }
+
+    public function loginAuth(Request $request){
+        $request->validate([
+            'email' => 'required|email:dns',
+            'password' => 'required',
+        ]);
+
+        $users = $request->only(['email','password']);
+        if(Auth::attempt($users)) {
+            return redirect()->route('home');
+        } else {
+            return redirect()->back()->with('failed','proses login gagal,coba kembali dengan data yang benar!   ');
+        }
+    }
+
+    public function logout(){
+        Auth::logout();
+        return redirect()->route('login')->with('logout', 'anda telah logout');
+    }
+
     public function index()
     {
-        $users = Akun::all();
+        $users = User::all();
         return view("kelola.index",compact('users'));
     }
 
@@ -31,24 +55,39 @@ class AkunController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        $validatedData= $request->validate([
-            'nama' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'role' => 'required|string|in:admin,user',
-        ]);
+{
+    // Validasi data input
+    $validatedData= $request->validate([
+        'nama' => 'required|string|max:255',
+        'email' => 'required|email|unique:akuns,email', // Memastikan email unik
+        'role' => 'required|string|in:admin,user',
+    ]);
 
-        $generatedPassword= Str::random(12);
+    // Cek jika sudah ada data dengan kombinasi nama, email, dan role yang sama
+    $existingAkun = User::where('nama', $validatedData['nama'])
+                        ->where('email', $validatedData['email'])
+                        ->where('role', $validatedData['role'])
+                        ->first();
 
-        Akun::create([
-            'nama' => $validatedData['nama'],
-            'email' => $validatedData['email'],
-            'password' => bcrypt($generatedPassword),
-            'role' => $validatedData['role'],
-        ]);
-
-        return redirect()->back()->with('success', 'Berhasil Mengubah Data!');
+    if ($existingAkun) {
+        // Jika data sudah ada, kembalikan pesan error
+        return redirect()->back()->withErrors('Data dengan kombinasi nama, email, dan role yang sama sudah ada!');
     }
+
+    // Membuat password acak
+    $generatedPassword= Str::random(12);
+
+    // Jika tidak ada duplikasi, simpan data baru
+    User::create([
+        'nama' => $validatedData['nama'],
+        'email' => $validatedData['email'],
+        'password' => bcrypt($generatedPassword),
+        'role' => $validatedData['role'],
+    ]);
+
+    // Redirect dengan pesan sukses
+    return redirect()->back()->with('success', 'Berhasil Menambahkan Data!');
+}
 
     /**
      * Display the specified resource.
@@ -64,7 +103,7 @@ class AkunController extends Controller
     public function edit($id)
     {
         //
-        $users = Akun::find($id);
+        $users = User::find($id);
         return view('kelola.edit', compact('users'));
     }
 
@@ -80,7 +119,7 @@ class AkunController extends Controller
             'role' => 'required',
         ]);
 
-        Akun::where('id', $id)->update([
+        User::where('id', $id)->update([
             'nama' => $request->nama,
             'email' => $request->email,
             'role' => $request->role,
@@ -95,7 +134,7 @@ class AkunController extends Controller
     public function destroy($id)
     {
         //
-        Akun::where('id', $id)->delete();
+        User::where('id', $id)->delete();
 
         return redirect()->back()->with('deleted', 'Berhasil menghapus data');
     }

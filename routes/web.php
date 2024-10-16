@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\MedicineController;
 use App\Http\Controllers\AkunController;
+use App\Http\Controllers\Controller;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,12 +18,12 @@ use App\Http\Controllers\AkunController;
 |
 */
 
-Route::get('/', function () {
-    return view('home');
-});
+// Route::get('/', function () {
+//     return view('home');
+// });
 
-Route::get('/kelola', function () {
-    return view('kelola.index');
+Route::get('/', function () {
+    return view('login');
 });
 
 //struktur routing laravel:
@@ -32,6 +33,16 @@ Route::get('/kelola', function () {
 // 2.post -> menambahkan data baru ke db
 // 3.patch/put -> mengubah data di db
 // 4. delate -> menghapus data di db
+
+Route::get('/', [AkunController::class, 'login'])->name('login');
+Route::post('/login', [AkunController::class, 'loginAuth'])->name('login.auth');
+
+Route::middleware(['isLogin'])->group(function(){
+
+    Route::get('/logout', [AkunController::class, 'logout'])->name('logout');
+    
+    Route::get('/home', [LandingPageController::class, 'index'])->name('home');
+    
 Route::prefix('/medicine')->name('medicine.')->group(function() {
     Route::get('create', [MedicineController::class, 'create'])->name('create');
     Route::post('store', [MedicineController::class, 'store'])->name('store');
@@ -50,4 +61,5 @@ Route::prefix('/kelola')->name('kelola.')->group(function(){
     route::get('{id}', [AkunController::class, 'edit'])->name ('edit');
     route::patch('/{id}', [AkunController::class, 'update'])->name ('update');
     route::delete('/{id}', [AkunController::class, 'destroy'])->name ('delete');
+});
 });
