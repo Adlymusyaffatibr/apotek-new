@@ -92,7 +92,7 @@ class AkunController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Akun $akun)
+    public function show(User $user)
     {
         //
     }

@@ -34,8 +34,10 @@ Route::get('/', function () {
 // 3.patch/put -> mengubah data di db
 // 4. delate -> menghapus data di db
 
-Route::get('/', [AkunController::class, 'login'])->name('login');
-Route::post('/login', [AkunController::class, 'loginAuth'])->name('login.auth');
+Route::middleware(['isGuest'])->group(function() {
+    Route::get('/', [AkunController::class, 'login'])->name('login');
+    Route::post('/login', [AkunController::class, 'loginAuth'])->name('login.auth');
+});
 
 Route::middleware(['isLogin'])->group(function(){
 
